@@ -1,156 +1,139 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Vault Chat Terminal</title>
+    <meta charset="UTF-8">
+    <title>Vault Chat Room</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/pipboy.css' %}">
-    {#
     <style>
         body {
-            background-color: black;
-            color: #00FF00;
-            font-family: "Courier New", Courier, monospace;
-            padding: 20px;
+            background: #222;
+            color: #39FF14;
+            font-family: 'VT323', monospace;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-
-        h1, h2, label {
-            color: #00FF00;
+        .vaultboy-img {
+            width: 80px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 6px #39FF14);
         }
-
-        input, button {
-            background-color: black;
-            color: #00FF00;
-            border: 1px solid #00FF00;
-            font-family: inherit;
-            padding: 5px;
+        .chat-room-container {
+            background: rgba(20, 20, 20, 0.97);
+            border: 4px solid #39FF14;
+            border-radius: 16px;
+            box-shadow: 0 0 24px #39FF14;
+            padding: 32px 24px 24px 24px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
         }
-
-        #messages {
-            max-height: 300px;
+        .chat-room-title {
+            font-size: 2em;
+            color: #FFD700;
+            letter-spacing: 2px;
+            text-shadow: 0 0 8px #39FF14;
+            margin-bottom: 10px;
+        }
+        .chat-messages {
+            background: #111;
+            border: 2px solid #39FF14;
+            border-radius: 8px;
+            height: 260px;
             overflow-y: auto;
-            border: 1px solid #00FF00;
+            margin-bottom: 18px;
             padding: 10px;
-            margin-top: 10px;
+            text-align: left;
         }
-
-        li {
-            margin-bottom: 5px;
+        .chat-message {
+            margin-bottom: 10px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            background: rgba(60, 60, 30, 0.08);
+            border-left: 3px solid #FFD700;
+            font-size: 1.1em;
         }
-
-        button:hover {
-            background-color: #003300;
+        .chat-message.me {
+            border-left: 3px solid #39FF14;
+            background: rgba(57, 255, 20, 0.08);
+        }
+        .chat-form {
+            display: flex;
+            gap: 8px;
+        }
+        .chat-input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #39FF14;
+            border-radius: 6px;
+            background: #111;
+            color: #39FF14;
+            font-size: 1.1em;
+            font-family: 'VT323', monospace;
+        }
+        .chat-send {
+            padding: 10px 18px;
+            background: #39FF14;
+            color: #222;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1em;
+            font-family: 'VT323', monospace;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .chat-send:hover {
+            background: #FFD700;
+            color: #111;
         }
     </style>
-    #}
 </head>
-<body class="terminal-bg">
-    <div class="chat-container">
-        <h1>VAULT CHAT TERMINAL</h1>
-        <h2>Room: {{ room_name }}</h2>
-
-        <label>Username</label><br>
-        <input id="username" type="text" placeholder="Enter your name" class="chat-input"><br><br>
-
-        <label>Message</label><br>
-        <input id="messageInput" type="text" placeholder="Type your message" class="chat-input">
-        <button onclick="sendMessage()" class="chat-button">Send</button>
-
-        <div id="messages" class="chat-log">
-            {% for msg in messages %}
-                <div class="chat-message">
-                    <div class="message-sender-info">
-                        {# Django template does not have easy way to format datetime, keep it simple for now #}
-                        <span class="message-timestamp">[{{ msg.timestamp|date:"H:i" }}]</span>
-                        <span class="message-username">{{ msg.username }}</span>:
-                    </div>
-                    <div class="message-content">{{ msg.content }}</div>
-                    {# Add message actions later if needed #}
-                </div>
-            {% endfor %}
+<body>
+    <div class="chat-room-container">
+        <img src="{% static 'img/vaultboy.png' %}" alt="Vault Boy" class="vaultboy-img">
+        <div class="chat-room-title">Vault Chat: {{ room_name|title }}</div>
+        <div id="chat-messages" class="chat-messages">
+            <!-- Сообщения будут добавляться сюда JS-ом -->
         </div>
+        <form id="chat-form" class="chat-form" autocomplete="off">
+            <input id="chat-message-input" class="chat-input" type="text" placeholder="Type your message..." autocomplete="off" required />
+            <button id="chat-message-submit" class="chat-send" type="submit">Send</button>
+        </form>
     </div>
-
     <script>
-        const roomName = "{{ room_name }}";
-        const accessToken = localStorage.getItem('access_token'); // Get token from localStorage
-        
-        let websocketUrl = 'ws://' + window.location.host + '/ws/chat/' + roomName + '/';
-        
-        if (accessToken) {
-            websocketUrl += '?token=' + accessToken;
-        }
-
-        const chatSocket = new WebSocket(websocketUrl);
-
-        chatSocket.onopen = function(e) {
-            console.log("WebSocket connected.");
-            scrollToBottom();
-        };
+        // WebSocket и логика чата (оставь свою или адаптируй под свой backend)
+        const roomName = "{{ room_name|escapejs }}";
+        const chatSocket = new WebSocket(
+            (window.location.protocol === 'https:' ? 'wss://' : 'ws://')
+            + window.location.host
+            + '/ws/chat/' + roomName + '/'
+        );
+        const messages = document.getElementById('chat-messages');
+        const form = document.getElementById('chat-form');
+        const input = document.getElementById('chat-message-input');
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            const messagesContainer = document.getElementById('messages');
-
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('chat-message');
-
-            const senderInfoDiv = document.createElement('div');
-            senderInfoDiv.classList.add('message-sender-info');
-
-            const usernameSpan = document.createElement('span');
-            usernameSpan.classList.add('message-username');
-            usernameSpan.textContent = data.username;
-
-            senderInfoDiv.appendChild(usernameSpan);
-            senderInfoDiv.appendChild(document.createTextNode(':'));
-
-            const contentDiv = document.createElement('div');
-            contentDiv.classList.add('message-content');
-            contentDiv.textContent = data.message;
-
-            messageDiv.appendChild(senderInfoDiv);
-            messageDiv.appendChild(contentDiv);
-
-            messagesContainer.appendChild(messageDiv);
-
-            scrollToBottom();
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'chat-message' + (data.username === '{{ user.username }}' ? ' me' : '');
+            msgDiv.innerHTML = `<b>${data.username || 'Anonymous'}:</b> ${data.message}`;
+            messages.appendChild(msgDiv);
+            messages.scrollTop = messages.scrollHeight;
         };
 
-        chatSocket.onerror = function(e) {
-            console.error("WebSocket error:", e);
-        };
-
-        chatSocket.onclose = function(e) {
-            console.error("WebSocket closed unexpectedly");
-        };
-
-        function sendMessage() {
-            const username = document.getElementById('username').value;
-            const messageInput = document.getElementById('messageInput');
-            const message = messageInput.value;
-
-            if (!username || !message) {
-                alert("Please enter both a name and a message.");
-                return;
-            }
-
-            if (chatSocket.readyState === WebSocket.OPEN) {
+        form.onsubmit = function(e) {
+            e.preventDefault();
+            if (input.value.trim()) {
                 chatSocket.send(JSON.stringify({
-                    'username': username,
-                    'message': message
+                    'message': input.value
                 }));
-                console.log("Sent:", username + ": " + message);
-            } else {
-                console.error("WebSocket is not open.");
+                input.value = '';
             }
-
-            messageInput.value = '';
-        }
-
-        function scrollToBottom() {
-            const messageBox = document.getElementById('messages');
-            messageBox.scrollTop = messageBox.scrollHeight;
-        }
+        };
     </script>
 </body>
 </html>

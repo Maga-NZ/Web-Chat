@@ -1,0 +1,187 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vault Messenger</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/pipboy.css' %}">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #222;
+            font-family: 'VT323', monospace;
+            color: #222;
+        }
+        .main-layout {
+            display: flex;
+            min-height: 100vh;
+            background: #222;
+        }
+        .chat-list-panel {
+            width: 320px;
+            background: #181818;
+            border-left: 4px solid #39FF14;
+            box-shadow: -2px 0 12px #111;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            z-index: 2;
+        }
+        .chat-list-header {
+            padding: 18px 20px 10px 20px;
+            color: #FFD700;
+            font-size: 1.5em;
+            border-bottom: 2px solid #39FF14;
+            text-align: right;
+            letter-spacing: 2px;
+        }
+        .chat-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 0 10px 0;
+        }
+        .chat-list-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid #333;
+            transition: background 0.15s;
+        }
+        .chat-list-item.active, .chat-list-item:hover {
+            background: #232323;
+        }
+        .chat-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #39FF14;
+            color: #222;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-right: 16px;
+            border: 2px solid #FFD700;
+        }
+        .chat-info {
+            flex: 1;
+        }
+        .chat-title {
+            font-size: 1.1em;
+            color: #FFD700;
+            margin-bottom: 2px;
+        }
+        .chat-last {
+            font-size: 0.95em;
+            color: #39FF14;
+            opacity: 0.7;
+        }
+        .chat-main-panel {
+            flex: 1;
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+            background: #222;
+        }
+        @media (max-width: 900px) {
+            .chat-list-panel {
+                width: 100px;
+                min-width: 80px;
+            }
+            .chat-list-header {
+                font-size: 1em;
+                padding: 10px 8px 6px 8px;
+            }
+            .chat-list-item {
+                padding: 10px 8px;
+            }
+            .chat-avatar {
+                width: 32px;
+                height: 32px;
+                font-size: 1em;
+                margin-right: 8px;
+            }
+        }
+        @media (max-width: 600px) {
+            .main-layout {
+                flex-direction: column-reverse;
+            }
+            .chat-list-panel {
+                width: 100vw;
+                min-width: 0;
+                border-left: none;
+                border-top: 4px solid #39FF14;
+                flex-direction: row;
+                overflow-x: auto;
+                overflow-y: hidden;
+                height: 80px;
+                box-shadow: 0 -2px 12px #111;
+            }
+            .chat-list-header {
+                display: none;
+            }
+            .chat-list {
+                display: flex;
+                flex-direction: row;
+                padding: 0;
+            }
+            .chat-list-item {
+                flex-direction: column;
+                align-items: center;
+                border-bottom: none;
+                border-right: 1px solid #333;
+                padding: 8px 6px;
+            }
+            .chat-avatar {
+                margin-right: 0;
+                margin-bottom: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-layout">
+        <div class="chat-main-panel">
+            {% block chat_content %}{% endblock %}
+        </div>
+        <aside class="chat-list-panel">
+            <div class="chat-list-header">Chats</div>
+            <div class="chat-list">
+                <!-- Заглушки чатов -->
+                <div class="chat-list-item active">
+                    <div class="chat-avatar">A</div>
+                    <div class="chat-info">
+                        <div class="chat-title">Alice</div>
+                        <div class="chat-last">Hey, how are you?</div>
+                    </div>
+                </div>
+                <div class="chat-list-item">
+                    <div class="chat-avatar">B</div>
+                    <div class="chat-info">
+                        <div class="chat-title">Bob (Group)</div>
+                        <div class="chat-last">Let's meet at 7!</div>
+                    </div>
+                </div>
+                <div class="chat-list-item">
+                    <div class="chat-avatar">C</div>
+                    <div class="chat-info">
+                        <div class="chat-title">Crypto Club</div>
+                        <div class="chat-last">New event tomorrow</div>
+                    </div>
+                </div>
+                <div class="chat-list-item">
+                    <div class="chat-avatar">D</div>
+                    <div class="chat-info">
+                        <div class="chat-title">DevOps Team</div>
+                        <div class="chat-last">CI/CD is ready!</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</body>
+</html> 

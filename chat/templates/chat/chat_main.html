@@ -1,0 +1,52 @@
+{% extends 'chat/base_chat.html' %}
+
+{% block chat_content %}
+<div class="chat-room-panel" style="flex:1; display:flex; flex-direction:column; max-width:800px; width:100%; margin:32px 0; background:#181818; border-radius:18px; box-shadow:0 2px 16px #111; border:2px solid #39FF14;">
+    {% if active_room %}
+    <div style="padding:24px 32px 12px 32px; border-bottom:1px solid #333; display:flex; align-items:center;">
+        <div style="font-size:1.6em; color:#FFD700; flex:1;">{{ active_room.title }}</div>
+        <div style="color:#39FF14; font-size:1em;">Vault Chat</div>
+    </div>
+    <div id="messages" class="chat-log" style="flex:1; overflow-y:auto; padding:18px 32px; min-height:200px;">
+        {% for msg in messages %}
+            <div class="chat-message" style="margin-bottom:14px;">
+                <div class="message-sender-info" style="color:#FFD700; font-size:1.1em;">
+                    <span class="message-timestamp" style="color:#39FF14; opacity:0.7;">[{{ msg.timestamp|date:"H:i" }}]</span>
+                    <span class="message-username" style="margin-left:8px;">{{ msg.username }}</span>:
+                </div>
+                <div class="message-content" style="color:#39FF14; margin-left:24px;">{{ msg.content }}</div>
+            </div>
+        {% empty %}
+            <div style="color:#39FF14; opacity:0.7;">No messages yet.</div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="padding:32px; text-align:center; color:#FFD700; font-size:1.3em;">Выберите чат справа</div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<aside class="chat-list-panel">
+    <div class="chat-list-header">Chats</div>
+    <div class="chat-list">
+        {% for room in rooms %}
+        <a href="/chat/{{ room.id }}/" style="text-decoration:none;">
+            <div class="chat-list-item {% if active_room and room.id == active_room.id %}active{% endif %}">
+                <div class="chat-avatar">{{ room.title|slice:":1"|upper }}</div>
+                <div class="chat-info">
+                    <div class="chat-title">{{ room.title }}</div>
+                    <div class="chat-last">
+                        {% with last=room.message_set.last %}
+                            {% if last %}{{ last.content|truncatechars:24 }}{% else %}No messages{% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+        </a>
+        {% empty %}
+        <div style="color:#39FF14; opacity:0.7; padding:16px;">No chats yet.</div>
+        {% endfor %}
+    </div>
+</aside>
+{% endblock %} 
