@@ -1,0 +1,156 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vault Chat Terminal</title>
+    <link rel="stylesheet" href="{% static 'css/pipboy.css' %}">
+    {#
+    <style>
+        body {
+            background-color: black;
+            color: #00FF00;
+            font-family: "Courier New", Courier, monospace;
+            padding: 20px;
+        }
+
+        h1, h2, label {
+            color: #00FF00;
+        }
+
+        input, button {
+            background-color: black;
+            color: #00FF00;
+            border: 1px solid #00FF00;
+            font-family: inherit;
+            padding: 5px;
+        }
+
+        #messages {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #00FF00;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+
+        button:hover {
+            background-color: #003300;
+        }
+    </style>
+    #}
+</head>
+<body class="terminal-bg">
+    <div class="chat-container">
+        <h1>VAULT CHAT TERMINAL</h1>
+        <h2>Room: {{ room_name }}</h2>
+
+        <label>Username</label><br>
+        <input id="username" type="text" placeholder="Enter your name" class="chat-input"><br><br>
+
+        <label>Message</label><br>
+        <input id="messageInput" type="text" placeholder="Type your message" class="chat-input">
+        <button onclick="sendMessage()" class="chat-button">Send</button>
+
+        <div id="messages" class="chat-log">
+            {% for msg in messages %}
+                <div class="chat-message">
+                    <div class="message-sender-info">
+                        {# Django template does not have easy way to format datetime, keep it simple for now #}
+                        <span class="message-timestamp">[{{ msg.timestamp|date:"H:i" }}]</span>
+                        <span class="message-username">{{ msg.username }}</span>:
+                    </div>
+                    <div class="message-content">{{ msg.content }}</div>
+                    {# Add message actions later if needed #}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        const roomName = "{{ room_name }}";
+        const accessToken = localStorage.getItem('access_token'); // Get token from localStorage
+        
+        let websocketUrl = 'ws://' + window.location.host + '/ws/chat/' + roomName + '/';
+        
+        if (accessToken) {
+            websocketUrl += '?token=' + accessToken;
+        }
+
+        const chatSocket = new WebSocket(websocketUrl);
+
+        chatSocket.onopen = function(e) {
+            console.log("WebSocket connected.");
+            scrollToBottom();
+        };
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            const messagesContainer = document.getElementById('messages');
+
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('chat-message');
+
+            const senderInfoDiv = document.createElement('div');
+            senderInfoDiv.classList.add('message-sender-info');
+
+            const usernameSpan = document.createElement('span');
+            usernameSpan.classList.add('message-username');
+            usernameSpan.textContent = data.username;
+
+            senderInfoDiv.appendChild(usernameSpan);
+            senderInfoDiv.appendChild(document.createTextNode(':'));
+
+            const contentDiv = document.createElement('div');
+            contentDiv.classList.add('message-content');
+            contentDiv.textContent = data.message;
+
+            messageDiv.appendChild(senderInfoDiv);
+            messageDiv.appendChild(contentDiv);
+
+            messagesContainer.appendChild(messageDiv);
+
+            scrollToBottom();
+        };
+
+        chatSocket.onerror = function(e) {
+            console.error("WebSocket error:", e);
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error("WebSocket closed unexpectedly");
+        };
+
+        function sendMessage() {
+            const username = document.getElementById('username').value;
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value;
+
+            if (!username || !message) {
+                alert("Please enter both a name and a message.");
+                return;
+            }
+
+            if (chatSocket.readyState === WebSocket.OPEN) {
+                chatSocket.send(JSON.stringify({
+                    'username': username,
+                    'message': message
+                }));
+                console.log("Sent:", username + ": " + message);
+            } else {
+                console.error("WebSocket is not open.");
+            }
+
+            messageInput.value = '';
+        }
+
+        function scrollToBottom() {
+            const messageBox = document.getElementById('messages');
+            messageBox.scrollTop = messageBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>

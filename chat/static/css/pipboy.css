@@ -1,0 +1,220 @@
+body.terminal-bg {
+  background-color: #0d0d0d;
+  color: #33ff33;
+  font-family: 'VT323', monospace;
+  font-size: 20px;
+  padding: 20px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+.chat-container {
+  max-width: 800px;
+  margin: 0 auto;
+  border: 2px solid #33ff33;
+  padding: 20px;
+  border-radius: 10px;
+  background: rgba(0, 10, 0, 0.8);
+  box-shadow: 0 0 20px #33ff33;
+}
+.terminal-title {
+  font-size: 28px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #33ff33;
+  padding-bottom: 10px;
+}
+
+/* Styles for chat area and user list */
+.chat-area {
+    display: flex; /* Use flexbox to arrange chat log and user list */
+    gap: 20px; /* Space between chat log and user list */
+    margin-bottom: 20px;
+}
+
+.chat-log {
+  flex-grow: 1; /* Allow chat log to take available space */
+  max-height: 300px;
+  overflow-y: auto;
+  /* margin-bottom: 20px; <- Removed, now part of chat-area gap */
+  background: rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  border: 1px dashed #33ff33;
+  animation: glow-flicker 1.5s infinite;
+}
+
+.users-list {
+    width: 200px; /* Fixed width for the user list */
+    max-height: 300px; /* Match chat log height */
+    overflow-y: auto; /* Add scroll if list is long */
+    border: 1px dashed #33ff33;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.list-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(51, 255, 51, 0.5);
+}
+
+.user-item {
+    margin-bottom: 5px;
+    padding: 3px;
+    border-bottom: 1px dotted rgba(51, 255, 51, 0.2);
+}
+
+.user-item:last-child {
+    border-bottom: none; /* No border for the last item */
+}
+
+.status-online {
+    color: #33ff33; /* Bright green for online */
+}
+
+.status-offline {
+    color: rgba(51, 255, 51, 0.5); /* Dimmer green for offline */
+    font-style: italic; /* Italicize offline users */
+}
+
+.chat-input {
+  width: 80%;
+  background-color: #000;
+  color: #33ff33;
+  border: 1px solid #33ff33;
+  padding: 10px;
+  font-family: 'VT323', monospace;
+}
+.chat-button {
+  padding: 10px 20px;
+  border: 1px solid #33ff33;
+  background-color: #0f0f0f;
+  color: #33ff33;
+  cursor: pointer;
+}
+.chat-button:hover {
+  background-color: #1a1a1a;
+}
+@keyframes glow-flicker {
+  0% { opacity: 0.95; }
+  50% { opacity: 1; }
+  100% { opacity: 0.97; }
+}
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 255, 0, 0.05),
+    rgba(0, 255, 0, 0.05) 2px,
+    transparent 2px,
+    transparent 4px
+  );
+  pointer-events: none;
+  z-index: 10;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1 }
+  50% { opacity: 0 }
+}
+.chat-input::placeholder {
+  animation: blink 1s step-end infinite;
+  color: #33ff33;
+}
+
+/* Add styles for improved message display */
+.chat-message {
+    margin-bottom: 15px; /* Space between messages */
+    padding: 10px; /* Inner padding */
+    border: 1px dashed rgba(51, 255, 51, 0.3); /* Subtle border for messages */
+    background-color: rgba(0, 20, 0, 0.5); /* Semi-transparent dark background */
+    border-radius: 5px; /* Slightly rounded corners */
+    position: relative; /* Needed for absolute positioning of actions */
+}
+
+.message-sender-info {
+    margin-bottom: 5px; /* Space between sender info and message content */
+    font-size: 0.9em; /* Smaller font size for sender info */
+    color: rgba(51, 255, 51, 0.7); /* Slightly less intense green */
+}
+
+.message-timestamp {
+    margin-right: 10px; /* Space between timestamp and username */
+    font-weight: bold; /* Make timestamp bold */
+}
+
+.message-username {
+    font-weight: bold; /* Make username bold */
+}
+
+.message-content {
+    word-wrap: break-word; /* Prevent long words from overflowing */
+    white-space: pre-wrap; /* Preserve line breaks and spaces in text content */
+}
+
+.message-content img {
+    max-width: 100%; /* Ensure images don't overflow message container */
+    height: auto; /* Maintain aspect ratio */
+    display: block; /* Remove extra space below images */
+    margin-top: 10px; /* Space above image */
+    border: 1px solid rgba(51, 255, 51, 0.5); /* Border for images */
+}
+
+.message-content a {
+    color: #66ff66; /* Link color */
+    text-decoration: underline; /* Underline links */
+}
+
+.message-content a:hover {
+    color: #99ff99; /* Hover color */
+}
+
+.message-edited-indicator {
+    font-style: italic;
+    font-size: 0.8em;
+    color: rgba(51, 255, 51, 0.6);
+    margin-left: 10px;
+}
+
+/* Styles for message actions (edit/delete buttons) */
+.message-actions {
+    position: absolute; /* Position relative to .chat-message */
+    top: 5px; /* Distance from the top */
+    right: 5px; /* Distance from the right */
+    display: none; /* Hide by default */
+    gap: 5px; /* Space between buttons */
+    background-color: rgba(0, 10, 0, 0.7); /* Slightly darker background */
+    padding: 3px; /* Inner padding */
+    border-radius: 3px;
+}
+
+.chat-message:hover .message-actions { /* Show actions on message hover */
+    display: flex; /* Use flex to display buttons side by side */
+}
+
+.message-action-button {
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    color: #33ff33; /* Green text */
+    border: 1px solid #33ff33; /* Green border */
+    padding: 2px 5px; /* Smaller padding */
+    font-family: 'VT323', monospace; /* Pip-Boy font */
+    font-size: 0.8em; /* Smaller font size */
+    cursor: pointer; /* Indicate clickable */
+    border-radius: 3px; /* Slightly rounded corners */
+}
+
+.message-action-button:hover {
+    background-color: #33ff33; /* Green background on hover */
+    color: #000; /* Black text on hover */
+}
+
+.delete-button {
+    border-color: rgba(255, 51, 51, 0.7); /* Reddish border for delete */
+    color: rgba(255, 51, 51, 0.7); /* Reddish text for delete */
+}
+
+.delete-button:hover {
+    background-color: rgba(255, 51, 51, 0.7); /* Reddish background on hover */
+    color: #000; /* Black text on hover */
+}
